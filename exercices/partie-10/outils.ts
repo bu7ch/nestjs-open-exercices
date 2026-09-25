@@ -181,6 +181,9 @@ export function envProduction(port: number): Record<string, string> {
     NOMBRE_MAX_PRODUITS: '1000',
     ...ENV_P10,
     THROTTLE_ACTIF: 'false',
+    // Partie 11 (vitest.config.ts) : au cas où ta validation d'environnement les exige.
+    ...(e.DELAI_PAIEMENT_MS && { DELAI_PAIEMENT_MS: e.DELAI_PAIEMENT_MS }),
+    ...(e.WEBHOOK_SECRET && { WEBHOOK_SECRET: e.WEBHOOK_SECRET }),
   };
 }
 

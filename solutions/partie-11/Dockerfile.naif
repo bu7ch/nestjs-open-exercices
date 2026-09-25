@@ -1,0 +1,7 @@
+# 10.4 : la version naïve, pour comparer (`docker build -f Dockerfile.naif -t marketplace-naif .`).
+FROM node:24
+WORKDIR /app
+COPY . .
+RUN npm install
+RUN npm run build
+CMD ["npm", "run", "start:prod"]

@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, type NestApplicationOptions } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
@@ -82,6 +82,11 @@ export interface OptionsLancement {
    * être générée avant le démarrage). Seulement quand l'application démarre par `configurerApp`.
    */
   avantInit?: (app: INestApplication) => unknown;
+  /**
+   * Des options de création de l'application (partie 11 : `rawBody: true`, que le cours fait répéter aux
+   * tests). Seulement quand l'application démarre par `configurerApp` : sinon, ce sont celles de ton main.ts.
+   */
+  optionsApp?: NestApplicationOptions;
 }
 
 export interface AppLancee {
@@ -123,7 +128,7 @@ export async function lancer(options: OptionsLancement = {}): Promise<AppLancee>
   let app: INestApplication | undefined;
   try {
     if (configurer && options.via !== 'main') {
-      app = await lancerAvecConfigurerApp(racine, configurer, options.avantInit);
+      app = await lancerAvecConfigurerApp(racine, configurer, options.avantInit, options.optionsApp);
     } else {
       app = await lancerMain(racine);
     }
@@ -159,22 +164,27 @@ export function rechargerLeCode(): void {
   vi.resetModules();
 }
 
-async function lancerAvecConfigurerApp(racine: string, configurer: () => Promise<unknown>, avantInit?: (app: INestApplication) => unknown): Promise<INestApplication> {
+async function lancerAvecConfigurerApp(
+  racine: string,
+  configurer: () => Promise<unknown>,
+  avantInit?: (app: INestApplication) => unknown,
+  optionsApp: NestApplicationOptions = {},
+): Promise<INestApplication> {
   const { configurerApp } = (await configurer()) as { configurerApp: (app: INestApplication) => unknown };
   const { AppModule: Module } = await importer<{ AppModule: new () => unknown }>('app.module', '', racine);
   // Un `ConfigModule.forRoot(...)` qui échoue (variable manquante) est une promesse rejetée dans les
   // imports : on la marque comme suivie, NestJS la relira et remontera l'erreur à la compilation.
   for (const i of meta('imports', Module)) if (i instanceof Promise) i.catch(() => undefined);
   const module = await Test.createTestingModule({ imports: [Module] }).compile();
-  const app = module.createNestApplication({ logger: false });
-  await configurerApp(app);
+  const app = module.createNestApplication({ ...optionsApp, logger: false });
   try {
+    await configurerApp(app);
     await avantInit?.(app);
+    await app.init();
   } catch (erreur) {
     await app.close().catch(() => undefined);
     throw erreur;
   }
-  await app.init();
   return app;
 }
 

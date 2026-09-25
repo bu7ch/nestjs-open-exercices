@@ -1,0 +1,84 @@
+# La marketplace au complet (exercices 10.7 à 10.12) : `docker compose up -d --build`.
+# - `db` : ta base de développement `marketplace`, et `marketplace_test` pour les tests (docker/initdb) ;
+# - `redis` : les compteurs de la limitation de débit (10.8) ;
+# - `migrations` : exécute les migrations, puis s'arrête (code 0) ;
+# - `api` : l'image du Dockerfile (10.4), démarrée quand tout le reste est prêt.
+# Pendant le développement : `docker compose up -d db redis`, puis `npm run start:dev`.
+# Les secrets viennent de ton .env (lu par Compose), jamais de ce fichier.
+
+x-connexion-base: &connexion-base
+  # Dans un conteneur, `localhost` est le conteneur lui-même : on joint la base par le nom du service.
+  DB_HOST: db
+  DB_PORT: 5432
+  DB_USER: marketplace
+  DB_PASSWORD: marketplace
+  DB_NAME: marketplace
+
+services:
+  db:
+    image: docker.io/library/postgres:16
+    environment:
+      POSTGRES_USER: marketplace
+      POSTGRES_PASSWORD: marketplace
+      POSTGRES_DB: marketplace
+    ports:
+      - "5432:5432"
+    volumes:
+      - donnees-postgres:/var/lib/postgresql/data
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: docker.io/library/redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  migrations:
+    build: .
+    # La CLI de NestJS n'est pas dans l'image (npm prune) : on appelle directement celle de TypeORM.
+    command: ["node_modules/.bin/typeorm", "migration:run", "-d", "dist/data-source.js"]
+    environment: *connexion-base
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      <<: *connexion-base
+      NODE_ENV: production
+      NOMBRE_MAX_PRODUITS: ${NOMBRE_MAX_PRODUITS:?NOMBRE_MAX_PRODUITS manquant dans .env}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET manquant dans .env}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?JWT_REFRESH_SECRET manquant dans .env}
+      REDIS_HOST: redis
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+    healthcheck:
+      # 10.10 : « prêt » (la base et Redis répondent). L'image Alpine n'a pas curl : fetch, dans Node.
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/sante/pret').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    # 10.12 : le délai laissé aux requêtes en cours entre SIGTERM et SIGKILL.
+    stop_grace_period: 30s
+
+volumes:
+  donnees-postgres:

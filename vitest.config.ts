@@ -18,6 +18,14 @@ const redis = {
   REDIS_PORT: process.env.REDIS_PORT ?? '6379',
 };
 
+// Partie 11 : le délai de paiement (aucune commande n'expire pendant un test, sauf quand le test le décide)
+// et le secret des webhooks. Fournis à toutes les parties : si ta validation d'environnement les exige,
+// les tests des parties précédentes démarrent encore ton application.
+const partie11 = {
+  DELAI_PAIEMENT_MS: '3600000',
+  WEBHOOK_SECRET: 'whsec_secret-des-tests-de-la-partie-11',
+};
+
 export default defineConfig({
   test: {
     globals: true,
@@ -31,7 +39,7 @@ export default defineConfig({
     hookTimeout: 30000,
     // Les variables que ta configuration exige (partie 4) et celles de la base (partie 5) : fournies
     // par les tests, jamais lues depuis ton .env.
-    env: { NOMBRE_MAX_PRODUITS: '1000', NOMBRE_MAX_JOUEURS: '1000', ...base, ...redis },
+    env: { NOMBRE_MAX_PRODUITS: '1000', NOMBRE_MAX_JOUEURS: '1000', ...base, ...redis, ...partie11 },
     server: {
       deps: {
         // Ces paquets gardent des registres globaux (entités de `autoLoadEntities`, types GraphQL) :

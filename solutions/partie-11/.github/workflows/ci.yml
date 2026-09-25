@@ -1,0 +1,136 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  # Ton travail : les tests des exercices sur ton code (dans src/).
+  # 10.13, 10.14 : le job `image` en dépend (`needs`) : il ne doit plus pouvoir échouer « pour rien ».
+  # Plus de `continue-on-error`, et seulement les tests de la dernière partie : ceux des parties
+  # précédentes ne peuvent plus passer sur ton code final (voir le README).
+  exercices:
+    runs-on: ubuntu-latest
+    # À partir de la partie 5, les tests ont besoin de PostgreSQL : la base de test marketplace_test.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: marketplace
+          POSTGRES_PASSWORD: marketplace
+          POSTGRES_DB: marketplace_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U marketplace -d marketplace_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      # À partir de la partie 10, les tests ont aussi besoin de Redis (les compteurs du throttler, /sante/pret).
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: marketplace
+      DB_PASSWORD: marketplace
+      DB_NAME: marketplace_test
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # 10.13 : la compilation vérifie les types (ce que Vitest ne fait pas), et produit dist/.
+      - run: npm run build
+      - name: Les migrations s'appliquent sur une base vide
+        run: npx typeorm migration:run -d dist/data-source.js
+      - name: Aucune migration oubliée
+        run: npx typeorm migration:generate --check -d dist/data-source.js src/migrations/Oubli
+      # 11 : les tests de la partie en cours (ceux des parties précédentes ne passent plus tous : voir le README).
+      - run: npm run test:partie-11
+
+  # Garde-fou du cours : chaque solution du dossier solutions/ doit passer les tests de sa partie.
+  solutions:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: marketplace
+          POSTGRES_PASSWORD: marketplace
+          POSTGRES_DB: marketplace_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U marketplace -d marketplace_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      # À partir de la partie 10, les tests ont aussi besoin de Redis (les compteurs du throttler, /sante/pret).
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: marketplace
+      DB_PASSWORD: marketplace
+      DB_NAME: marketplace_test
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run verifier:solutions
+
+  # 10.14 : l'image, construite et publiée sur GHCR, seulement si les tests passent, et seulement pour
+  # un push sur main (pas pour une pull request).
+  image:
+    needs: exercices
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=sha
+            type=raw,value=latest
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
