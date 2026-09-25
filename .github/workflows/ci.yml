@@ -23,12 +23,24 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+      # À partir de la partie 10, les tests ont aussi besoin de Redis (les compteurs du throttler, /sante/pret).
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
     env:
       DB_HOST: localhost
       DB_PORT: 5432
       DB_USER: marketplace
       DB_PASSWORD: marketplace
       DB_NAME: marketplace_test
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -55,12 +67,24 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+      # À partir de la partie 10, les tests ont aussi besoin de Redis (les compteurs du throttler, /sante/pret).
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
     env:
       DB_HOST: localhost
       DB_PORT: 5432
       DB_USER: marketplace
       DB_PASSWORD: marketplace
       DB_NAME: marketplace_test
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7

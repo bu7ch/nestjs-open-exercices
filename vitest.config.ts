@@ -11,6 +11,13 @@ const base = {
   DB_NAME: process.env.DB_NAME ?? 'marketplace_test',
 };
 
+// Redis (partie 10 : les compteurs du throttler, /sante/pret). Surchargeable aussi : `REDIS_PORT=56379 npm test`.
+// Les tests qui réactivent la limitation vident cette base Redis (`FLUSHDB`), comme ceux du cours.
+const redis = {
+  REDIS_HOST: process.env.REDIS_HOST ?? 'localhost',
+  REDIS_PORT: process.env.REDIS_PORT ?? '6379',
+};
+
 export default defineConfig({
   test: {
     globals: true,
@@ -24,7 +31,7 @@ export default defineConfig({
     hookTimeout: 30000,
     // Les variables que ta configuration exige (partie 4) et celles de la base (partie 5) : fournies
     // par les tests, jamais lues depuis ton .env.
-    env: { NOMBRE_MAX_PRODUITS: '1000', NOMBRE_MAX_JOUEURS: '1000', ...base },
+    env: { NOMBRE_MAX_PRODUITS: '1000', NOMBRE_MAX_JOUEURS: '1000', ...base, ...redis },
     server: {
       deps: {
         // Ces paquets gardent des registres globaux (entités de `autoLoadEntities`, types GraphQL) :

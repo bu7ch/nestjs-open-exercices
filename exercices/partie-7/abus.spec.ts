@@ -16,11 +16,30 @@ async function connexionsRatees(http: AppAvecBase['http'], n: number): Promise<n
   return statuts;
 }
 
+/**
+ * À partir de la partie 10 (10.8), les compteurs vivent dans Redis et survivent d'une application à
+ * l'autre : on vide le Redis des tests avant chaque bloc, s'il répond (sinon, rien à vider).
+ */
+async function viderRedisSiPresent(): Promise<void> {
+  const { Redis } = await import('ioredis');
+  const client = new Redis({ host: process.env.REDIS_HOST ?? 'localhost', port: Number(process.env.REDIS_PORT ?? 6379), lazyConnect: true, maxRetriesPerRequest: 0, retryStrategy: () => null, connectTimeout: 1000 });
+  client.on('error', () => undefined);
+  try {
+    await client.connect();
+    await client.flushdb();
+  } catch {
+    // pas de Redis : les compteurs sont dans ton application
+  } finally {
+    client.disconnect();
+  }
+}
+
 /** Démarre ton application pour un bloc de tests ; l'échec de démarrage est rejoué dans chaque test. */
 function application(env: Record<string, string>) {
   const etat: { lancee?: AppAvecBase; echec?: unknown } = {};
   beforeAll(async () => {
     try {
+      await viderRedisSiPresent();
       etat.lancee = await lancerAvecAuth({ env });
     } catch (erreur) {
       etat.echec = erreur;

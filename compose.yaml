@@ -1,6 +1,7 @@
 # La base de la marketplace (partie 5 du cours) : `docker compose up -d` (ou `podman compose up -d`).
 # - `marketplace`      : ta base de développement (npm run start:dev, migrations, seed) ;
 # - `marketplace_test` : la base des tests (npm test), créée au premier démarrage par docker/initdb.
+# Et, à partir de la partie 10, `redis` : les compteurs de la limitation de débit (tests compris).
 services:
   db:
     image: docker.io/library/postgres:16
@@ -13,6 +14,16 @@ services:
     volumes:
       - donnees-postgres:/var/lib/postgresql/data
       - ./docker/initdb:/docker-entrypoint-initdb.d:ro
+
+  redis:
+    image: docker.io/library/redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
 volumes:
   donnees-postgres:

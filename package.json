@@ -29,6 +29,7 @@
     "test:partie-7": "vitest run exercices/partie-7",
     "test:partie-8": "vitest run exercices/partie-8",
     "test:partie-9": "vitest run exercices/partie-9",
+    "test:partie-10": "vitest run exercices/partie-10",
     "verifier:solutions": "node scripts/verifier-solutions.mjs"
   },
   "dependencies": {
@@ -44,6 +45,7 @@
     "@nestjs/passport": "^12.0.0",
     "@nestjs/platform-express": "^12.0.1",
     "@nestjs/swagger": "^12.0.2",
+    "@nestjs/terminus": "^12.1.0",
     "@nestjs/throttler": "^6.7.1",
     "@nestjs/typeorm": "^12.0.1",
     "argon2": "^0.45.1",
@@ -51,6 +53,7 @@
     "class-validator": "^0.15.1",
     "graphql": "^16.14.2",
     "helmet": "^8.3.0",
+    "ioredis": "^5.11.1",
     "joi": "^18.2.9",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
@@ -78,7 +81,8 @@
     "supertest": "^7.0.0",
     "typescript": "^6.0.2",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^4.1.2"
+    "vitest": "^4.1.2",
+    "yaml": "^2.9.1"
   },
   "engines": {
     "node": ">=20"

@@ -45,7 +45,7 @@ if (parties.some((p) => Number(p.slice(7)) >= 5) && !(await verifierPostgres()))
 let echecs = 0;
 for (const partie of parties) {
   const copie = mkdtempSync(join(tmpdir(), `verif-${partie}-`));
-  for (const element of ['package.json', 'tsconfig.json', 'tsconfig.build.json', 'nest-cli.json', 'vitest.config.ts', 'vitest.config.unit.ts', 'vitest.config.e2e.ts', 'exercices']) {
+  for (const element of ['package.json', 'package-lock.json', 'tsconfig.json', 'tsconfig.build.json', 'nest-cli.json', 'vitest.config.ts', 'vitest.config.unit.ts', 'vitest.config.e2e.ts', 'exercices']) {
     if (existsSync(join(racine, element))) cpSync(join(racine, element), join(copie, element), { recursive: true });
   }
   // src/ (et, s'il y en a, les projets bonus à part comme bonus-nba/).

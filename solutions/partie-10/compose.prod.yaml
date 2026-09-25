@@ -1,0 +1,74 @@
+# 10.15 : le déploiement, sur un serveur. Rien n'y est construit : l'image vient de GHCR (10.14).
+#   docker compose -f compose.prod.yaml --env-file production.env pull
+#   docker compose -f compose.prod.yaml --env-file production.env up -d
+# Remplace `ton-compte` par ton compte GitHub (en minuscules : un nom d'image Docker l'exige).
+
+x-connexion-base: &connexion-base
+  DB_HOST: db
+  DB_PORT: 5432
+  DB_USER: ${DB_USER:?DB_USER manquant}
+  DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD manquant}
+  DB_NAME: ${DB_NAME:?DB_NAME manquant}
+
+services:
+  db:
+    image: docker.io/library/postgres:16
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    # Pas de `ports` : seuls les conteneurs du réseau privé joignent la base.
+    volumes:
+      - donnees-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: docker.io/library/redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  migrations:
+    image: ghcr.io/ton-compte/nestjs-open-exercices:latest
+    command: ["node_modules/.bin/typeorm", "migration:run", "-d", "dist/data-source.js"]
+    environment: *connexion-base
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    image: ghcr.io/ton-compte/nestjs-open-exercices:latest
+    # Seulement sur le serveur lui-même : le reverse proxy (HTTPS) transmet à 127.0.0.1:3000.
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      <<: *connexion-base
+      NODE_ENV: production
+      NOMBRE_MAX_PRODUITS: ${NOMBRE_MAX_PRODUITS:?NOMBRE_MAX_PRODUITS manquant}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET manquant}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?JWT_REFRESH_SECRET manquant}
+      REDIS_HOST: redis
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/sante/pret').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    stop_grace_period: 30s
+
+volumes:
+  donnees-postgres:
