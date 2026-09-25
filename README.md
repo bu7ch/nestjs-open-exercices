@@ -20,6 +20,7 @@ Le dépôt d'exercices du cours [NestJS Open](https://github.com/bu7ch/nestjs-op
    npm run test:partie-4   # les exercices de la partie 4
    npm run test:partie-5   # les exercices de la partie 5 (base de données démarrée)
    npm run test:partie-6   # les exercices de la partie 6 (tes propres tests, base démarrée)
+   npm run test:partie-7   # les exercices de la partie 7 (authentification, base démarrée)
    npm test                # toutes les parties
    ```
 
@@ -31,7 +32,7 @@ Un test qui échoue te dit **quel exercice** il vérifie (`3.6 · …`) et souve
 
 - Ils vérifient le **comportement** (les URL, les statuts, les données renvoyées, les messages de validation) et quelques choix de structure demandés par le cours (`ProduitsModule`, `ProduitsService`…, aux emplacements que génère `npx nest g`).
 - À partir de la partie 4, ils démarrent ton application **comme en vrai**, en exécutant ton `main.ts` (avec son `ValidationPipe` et son `ConfigService`) — ou ton `configurerApp` une fois écrit en partie 6.
-- Ils **ne lisent jamais ton `.env`** : chaque test fournit lui-même ses variables (`PORT`, `NOMBRE_MAX_PRODUITS`, `DB_*`…). Garde ton `.env` pour `npm run start:dev`.
+- Ils **ne lisent jamais ton `.env`** : chaque test fournit lui-même ses variables (`PORT`, `NOMBRE_MAX_PRODUITS`, `DB_*`, `JWT_SECRET`…). Garde ton `.env` pour `npm run start:dev`.
 - Ils ne vérifient pas les exercices « manuels » : installer, changer de port, casser volontairement une injection pour lire l'erreur. Ceux-là sont à cocher toi-même sur le site.
 - Ils n'évaluent pas le style de ton code.
 
@@ -72,6 +73,7 @@ npm run verifier:solutions 3    # seulement la partie 3
 | 4 · Valider les données | 4.1, 4.2, 4.4 à 4.13 (DTO, class-validator, pipes, `.env` et `ConfigService`) | 4.14 à 4.16 (Joi, Zod), 4.17 à 4.22 (projet NBA) | 4.3 ; le message exact du 4.13 ; `z.infer` (4.15) et le branchement du pipe Zod sur la route (4.16) |
 | 5 · Base de données | 5.1 (connexion TypeORM), 5.3 à 5.18 (entités, repository, relations, cascade, `409`, migrations, données de test) | 5.22 à 5.24 (GraphQL) | 5.1 (Docker/Podman, `.env`), 5.2 ; les observations `\dt`/`\d`/`psql` ; l'erreur SQL du 5.13 (`varianteId` 999) ; les scripts `migration:*` et `seed` de `package.json`, `migration:show` et l'essai `synchronize` du 5.16 ; le second champ de l'`@InputType` (5.24) ; 5.19 à 5.21 (Prisma) |
 | 6 · Tester son API | 6.1 à 6.6, 6.9, 6.11 à 6.16 (tes tests unitaires, doublures, e2e, base de test, couverture : voir ci-dessous) | — | 6.7, 6.8, 6.10 (casser exprès et noter l'erreur) ; « vois-les échouer » (6.1, 6.3) ; le `curl` et le préfixe `v1` du 6.11 ; `\dt` et `DB_NAME=marketplace npm run test:e2e` (6.12) ; « note quel test tombe » et les cinq lancements (6.14) ; les pourcentages et le rapport HTML (6.15) ; le test paresseux et le seuil passé à 100 (6.16) |
+| 7 · Authentification | 7.2 (entité `Compte`, migration), 7.4 à 7.6 (inscription, argon2, `409`, connexion, JWT, `Identifiants invalides`, faux hachage), 7.8 à 7.10 (guard global, `@Public()`, jetons refusés, `GET /api/auth/moi`), 7.12 à 7.14 (rôles, ordre des guards, propriété des produits), 7.15 à 7.17 (refresh token, rotation, réutilisation, déconnexion, `jwtid`), 7.18 à 7.20 (throttler, `THROTTLE_ACTIF`, helmet, CORS) | 7.21, 7.22 (Passport), 7.25 (Clerk, avec des clés fabriquées par le test) | 7.1, 7.3, 7.7 (scripts hors de l'application) ; `\d comptes` (7.2), le décodage à la main (7.5), les mesures de temps (7.6) ; **tes propres tests** (unitaire du 7.4, e2e des 7.10, 7.12, 7.16, 7.18, 7.20) et l'adaptation de ceux de la partie 6 (7.8) ; casser exprès et noter : 7.11, 7.13, 7.17, le décompte du 7.19 ; les deux sessions du 7.17 ; `curl -i` (7.20) ; 7.23, 7.24, 7.26 |
 
 Pour la partie 4, `class-validator`, `class-transformer`, `@nestjs/config`, `joi` et `zod` sont déjà dans le `package.json` : `npm install` suffit.
 
@@ -106,5 +108,19 @@ Les deux fichiers de configuration sont ceux d'un projet généré par `nest new
 4. Pour 6.12 à 6.16, ton application et ta configuration sont vérifiées directement : `.env.test` lu en test (et pas `.env`), `dropSchema` et `synchronize` en test, le garde-fou `_test`, un `TRUNCATE … RESTART IDENTITY` avant chaque test, `fileParallelism: false`, `coverage.include`/`exclude` et le seuil `lines: 80` (le seuil n'a pas à être atteint : le cours te le fait régler, pas dépasser).
 
 Les exercices où tu casses quelque chose exprès pour lire l'erreur (6.7, 6.8, 6.10…) restent à cocher toi-même. Si tu gardes le préfixe `v1` du 6.11, les tests de la partie 6 le suivent ; ceux des parties 3 à 5, non.
+
+## Partie 7 : l'authentification
+
+Les paquets de la partie 7 sont déjà dans le `package.json` : `argon2`, `@nestjs/jwt`, `@nestjs/throttler`, `helmet`, et ceux des bonus (`@nestjs/passport`, `passport`, `passport-jwt`, `@types/passport-jwt`, `@clerk/backend`). `npm install` suffit (npm peut afficher un avertissement `allow-scripts` pour `argon2` : le paquet fonctionne quand même).
+
+**Ce que les tests fournissent.** Ils démarrent ton application avec leurs propres `JWT_SECRET` et `JWT_REFRESH_SECRET` (de plus de 32 caractères), et avec `THROTTLE_ACTIF=false`. Connaître ces secrets leur permet de vérifier la signature de tes jetons, et d'en fabriquer (expirés, falsifiés, signés avec un autre secret) sans rien attendre. Ils s'inscrivent et se connectent **par tes routes** (`POST /api/auth/inscription`, `POST /api/auth/connexion`) pour obtenir un jeton, et passent un compte `vendeur` ou `admin` avec un `UPDATE` SQL, comme le cours. Ils vérifient en base que ni le mot de passe ni le refresh token ne sont stockés en clair (empreinte argon2).
+
+**La limitation de débit** est coupée (`THROTTLE_ACTIF=false`), sauf dans les tests qui la vérifient : chacun démarre sa propre application, donc des compteurs neufs, et vérifie la 6e tentative (ou la 101e requête) sans attendre la fin de la minute. Tant que ton `skipIf` ne lit pas `process.env.THROTTLE_ACTIF` (7.19), tes routes d'authentification répondent `429` dans les autres tests : le message te le signale.
+
+**Pour TES tests** (`npm run test:e2e`), ajoute à ton `.env.test` un `JWT_SECRET` et un `JWT_REFRESH_SECRET` de test (jamais ceux de ton `.env`), et `THROTTLE_ACTIF=false`. Tes tests ne sont pas jugés en partie 7 (c'était le rôle de la partie 6) : écris-les quand même, le cours les demande.
+
+**Ce qui ne passe plus.** Dès la partie 7, les tests des parties 5 et 6 qui démarrent ton application ne peuvent plus passer sur ton code : ils la démarrent sans `JWT_SECRET` (qu'elle refuse désormais), et appellent tes routes sans jeton (`401` une fois le guard global en place, 7.8). C'est normal : lance `npm run test:partie-7`. Ceux de la partie 6 qui jugent tes tests unitaires (6.1 à 6.6, 6.15, 6.16) restent verts. La solution de la partie 7 n'est, elle aussi, vérifiée que par les tests de la partie 7. De même, le bonus GraphQL de la partie 5 ne marche plus tel quel : le guard du cours lit la requête avec `switchToHttp()`, qui n'existe pas pour une requête GraphQL.
+
+**Les bonus.** Les tests de Passport (`bonus-passport.spec.ts`) sont ignorés tant qu'aucun fichier de `src/` n'appelle `PassportStrategy(...)` ; ceux de Clerk (`bonus-clerk.spec.ts`), tant qu'aucun n'importe `@clerk/backend`. Comme dans le cours, ils montent ta stratégie (ou ton `ClerkGuard`, ton entité `ProfilClerk` et ton `ProfilsService`) dans un petit module de test isolé. Pour Clerk, aucun compte n'est nécessaire : le test fabrique une paire de clés RSA, signe des jetons qui imitent ceux de Clerk, et donne la clé publique à ton guard par `CLERK_JWT_KEY`. Le vrai compte (7.26) ne se teste pas : il faudrait une clé secrète et de vrais jetons de session.
 
 Les autres parties arriveront au fil de la rédaction du cours.
