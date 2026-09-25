@@ -8,6 +8,27 @@ jobs:
   exercices:
     runs-on: ubuntu-latest
     continue-on-error: true
+    # À partir de la partie 5, les tests ont besoin de PostgreSQL : la base de test marketplace_test.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: marketplace
+          POSTGRES_PASSWORD: marketplace
+          POSTGRES_DB: marketplace_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U marketplace -d marketplace_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: marketplace
+      DB_PASSWORD: marketplace
+      DB_NAME: marketplace_test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -20,6 +41,26 @@ jobs:
   # Garde-fou du cours : chaque solution du dossier solutions/ doit passer les tests de sa partie.
   solutions:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: marketplace
+          POSTGRES_PASSWORD: marketplace
+          POSTGRES_DB: marketplace_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U marketplace -d marketplace_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: marketplace
+      DB_PASSWORD: marketplace
+      DB_NAME: marketplace_test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

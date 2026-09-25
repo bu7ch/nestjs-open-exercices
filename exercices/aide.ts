@@ -35,13 +35,18 @@ export async function importer<T = Record<string, unknown>>(chemin: string, indi
   return (await charger()) as T;
 }
 
+// Les fichiers qu'on ne charge jamais en cherchant un export : ils font quelque chose dès qu'on les
+// importe (démarrer le serveur, remplir la base, lire le .env) ou ne servent qu'à la CLI de TypeORM.
+const aNePasCharger = (chemin: string, racine: string) =>
+  ['main.ts', 'seed.ts', 'data-source.ts'].some((f) => chemin === `../${racine}/${f}`) || chemin.startsWith(`../${racine}/migrations/`);
+
 /**
- * Cherche un export par son nom dans tous les fichiers de `racine` (sauf main.ts),
- * pour ne pas t'imposer d'emplacement quand la consigne n'en donne pas.
+ * Cherche un export par son nom dans tous les fichiers de `racine` (sauf main.ts, seed.ts,
+ * data-source.ts et les migrations), pour ne pas t'imposer d'emplacement quand la consigne n'en donne pas.
  */
 export async function trouverExport<T = unknown>(nom: string, indice: string, racine = 'src'): Promise<T> {
   for (const [chemin, charger] of Object.entries(fichiers)) {
-    if (!chemin.startsWith(`../${racine}/`) || chemin === `../${racine}/main.ts`) continue;
+    if (!chemin.startsWith(`../${racine}/`) || aNePasCharger(chemin, racine)) continue;
     let contenu: Record<string, unknown>;
     try {
       contenu = (await charger()) as Record<string, unknown>;
@@ -104,7 +109,7 @@ export async function lancer(options: OptionsLancement = {}): Promise<AppLancee>
   const dossierInitial = process.cwd();
   process.chdir(dossier);
   // Chaque lancement repart d'un code fraîchement chargé : données en mémoire de départ, .env relu.
-  vi.resetModules();
+  rechargerLeCode();
 
   const configurer = fichiers[`../${racine}/configurer-app.ts`];
   let app: INestApplication | undefined;
@@ -132,6 +137,18 @@ export async function lancer(options: OptionsLancement = {}): Promise<AppLancee>
       restaurerEnv();
     },
   };
+}
+
+/**
+ * Oublie le code déjà chargé, pour que le prochain import reparte de zéro. `@nestjs/graphql` garde
+ * ses types dans des registres globaux (hors de portée de `vi.resetModules`) : on les vide aussi,
+ * sinon ton type `Vendeur`, rechargé, existerait deux fois dans le schéma (bonus GraphQL).
+ */
+export function rechargerLeCode(): void {
+  const global = globalThis as { GqlTypeMetadataStorage?: { clear(): void }; GqlLazyMetadataStorageHost?: { lazyMetadataByTarget?: Map<unknown, unknown> } };
+  global.GqlTypeMetadataStorage?.clear();
+  global.GqlLazyMetadataStorageHost?.lazyMetadataByTarget?.clear();
+  vi.resetModules();
 }
 
 async function lancerAvecConfigurerApp(racine: string, configurer: () => Promise<unknown>): Promise<INestApplication> {
