@@ -77,6 +77,11 @@ export interface OptionsLancement {
   via?: 'auto' | 'main';
   /** Le dossier du projet : `src` (la marketplace) ou `bonus-nba/src` (le projet bonus). */
   racine?: string;
+  /**
+   * Appelé après ton `configurerApp` et avant `app.init()` (partie 9 : la documentation Swagger doit
+   * être générée avant le démarrage). Seulement quand l'application démarre par `configurerApp`.
+   */
+  avantInit?: (app: INestApplication) => unknown;
 }
 
 export interface AppLancee {
@@ -118,7 +123,7 @@ export async function lancer(options: OptionsLancement = {}): Promise<AppLancee>
   let app: INestApplication | undefined;
   try {
     if (configurer && options.via !== 'main') {
-      app = await lancerAvecConfigurerApp(racine, configurer);
+      app = await lancerAvecConfigurerApp(racine, configurer, options.avantInit);
     } else {
       app = await lancerMain(racine);
     }
@@ -154,7 +159,7 @@ export function rechargerLeCode(): void {
   vi.resetModules();
 }
 
-async function lancerAvecConfigurerApp(racine: string, configurer: () => Promise<unknown>): Promise<INestApplication> {
+async function lancerAvecConfigurerApp(racine: string, configurer: () => Promise<unknown>, avantInit?: (app: INestApplication) => unknown): Promise<INestApplication> {
   const { configurerApp } = (await configurer()) as { configurerApp: (app: INestApplication) => unknown };
   const { AppModule: Module } = await importer<{ AppModule: new () => unknown }>('app.module', '', racine);
   // Un `ConfigModule.forRoot(...)` qui échoue (variable manquante) est une promesse rejetée dans les
@@ -163,6 +168,12 @@ async function lancerAvecConfigurerApp(racine: string, configurer: () => Promise
   const module = await Test.createTestingModule({ imports: [Module] }).compile();
   const app = module.createNestApplication({ logger: false });
   await configurerApp(app);
+  try {
+    await avantInit?.(app);
+  } catch (erreur) {
+    await app.close().catch(() => undefined);
+    throw erreur;
+  }
   await app.init();
   return app;
 }

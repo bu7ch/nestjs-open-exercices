@@ -28,6 +28,7 @@
     "test:partie-6": "vitest run exercices/partie-6",
     "test:partie-7": "vitest run exercices/partie-7",
     "test:partie-8": "vitest run exercices/partie-8",
+    "test:partie-9": "vitest run exercices/partie-9",
     "verifier:solutions": "node scripts/verifier-solutions.mjs"
   },
   "dependencies": {
@@ -42,6 +43,7 @@
     "@nestjs/jwt": "^12.0.2",
     "@nestjs/passport": "^12.0.0",
     "@nestjs/platform-express": "^12.0.1",
+    "@nestjs/swagger": "^12.0.2",
     "@nestjs/throttler": "^6.7.1",
     "@nestjs/typeorm": "^12.0.1",
     "argon2": "^0.45.1",

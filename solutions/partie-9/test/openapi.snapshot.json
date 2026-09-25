@@ -1,0 +1,1597 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/api/demo/lente": {
+      "get": {
+        "operationId": "AppController_lente",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/api/demo/travaux": {
+      "get": {
+        "operationId": "AppController_travaux",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/sante": {
+      "get": {
+        "operationId": "SanteController_verifier",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "sante"
+        ]
+      }
+    },
+    "/api/auth/inscription": {
+      "post": {
+        "operationId": "AuthController_inscrire",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InscriptionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/connexion": {
+      "post": {
+        "operationId": "AuthController_connecter",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConnexionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/moi": {
+      "get": {
+        "operationId": "AuthController_moi",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/rafraichir": {
+      "post": {
+        "operationId": "AuthController_rafraichir",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RafraichirDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/auth/deconnexion": {
+      "post": {
+        "operationId": "AuthController_deconnecter",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/api/comptes": {
+      "get": {
+        "operationId": "ComptesController_lister",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "comptes"
+        ]
+      }
+    },
+    "/api/produits": {
+      "get": {
+        "deprecated": true,
+        "operationId": "ProduitsController_listerV1",
+        "parameters": [
+          {
+            "name": "limite",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProduitReponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requête invalide (paramètre ou corps refusé)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton manquant, invalide ou expiré",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Liste les produits (ancienne version, sans pagination)",
+        "tags": [
+          "produits"
+        ]
+      },
+      "post": {
+        "operationId": "ProduitsController_creer",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreerProduitDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Crée un produit",
+        "tags": [
+          "produits"
+        ]
+      }
+    },
+    "/v2/api/produits": {
+      "get": {
+        "operationId": "ProduitsController_lister_v2",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Numéro de la page, à partir de 1",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "description": "Nombre d'éléments par page",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          },
+          {
+            "name": "recherche",
+            "required": false,
+            "in": "query",
+            "description": "Texte cherché dans le nom (sans tenir compte des majuscules)",
+            "schema": {
+              "maxLength": 50,
+              "type": "string"
+            }
+          },
+          {
+            "name": "categorie",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "papeterie",
+                "informatique",
+                "mobilier"
+              ]
+            }
+          },
+          {
+            "name": "prixMin",
+            "required": false,
+            "in": "query",
+            "description": "Prix minimal, en centimes",
+            "schema": {
+              "minimum": 0,
+              "example": 1000,
+              "type": "number"
+            }
+          },
+          {
+            "name": "prixMax",
+            "required": false,
+            "in": "query",
+            "description": "Prix maximal, en centimes",
+            "schema": {
+              "minimum": 0,
+              "example": 5000,
+              "type": "number"
+            }
+          },
+          {
+            "name": "tri",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "id",
+              "type": "string",
+              "enum": [
+                "id",
+                "nom",
+                "prix"
+              ]
+            }
+          },
+          {
+            "name": "ordre",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "default": "desc",
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "required": [
+                    "donnees",
+                    "meta"
+                  ],
+                  "properties": {
+                    "donnees": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/ProduitReponseDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/MetaPage"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requête invalide (paramètre ou corps refusé)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton manquant, invalide ou expiré",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Liste les produits actifs, paginés, filtrés et triés",
+        "tags": [
+          "produits"
+        ]
+      }
+    },
+    "/v2/api/produits/curseur": {
+      "get": {
+        "operationId": "ProduitsController_parCurseur_v2",
+        "parameters": [
+          {
+            "name": "apres",
+            "required": false,
+            "in": "query",
+            "description": "Identifiant du dernier élément déjà reçu (0 pour commencer)",
+            "schema": {
+              "minimum": 0,
+              "default": 0,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "description": "Nombre d'éléments à renvoyer",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Requête invalide (paramètre ou corps refusé)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton manquant, invalide ou expiré",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Parcourt les produits actifs par curseur (après un identifiant)",
+        "tags": [
+          "produits"
+        ]
+      }
+    },
+    "/api/produits/categorie/{categorie}": {
+      "get": {
+        "operationId": "ProduitsController_trouverParCategorie",
+        "parameters": [
+          {
+            "name": "categorie",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Requête invalide (paramètre ou corps refusé)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton manquant, invalide ou expiré",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Liste les produits d'une catégorie",
+        "tags": [
+          "produits"
+        ]
+      }
+    },
+    "/api/produits/{id}": {
+      "get": {
+        "operationId": "ProduitsController_trouver[0]",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProduitReponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requête invalide (paramètre ou corps refusé)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton manquant, invalide ou expiré",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ressource introuvable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Détail d'un produit",
+        "tags": [
+          "produits"
+        ]
+      },
+      "patch": {
+        "operationId": "ProduitsController_renommer",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RenommerProduitDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "400": {
+            "description": "Requête invalide (paramètre ou corps refusé)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton manquant, invalide ou expiré",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Action interdite",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ressource introuvable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Renomme un produit (son propriétaire ou un admin)",
+        "tags": [
+          "produits"
+        ]
+      }
+    },
+    "/v2/api/produits/{id}": {
+      "get": {
+        "operationId": "ProduitsController_trouver[1]_v2",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProduitReponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requête invalide (paramètre ou corps refusé)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton manquant, invalide ou expiré",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Ressource introuvable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Détail d'un produit",
+        "tags": [
+          "produits"
+        ]
+      }
+    },
+    "/api/produits/{id}/variantes": {
+      "post": {
+        "operationId": "ProduitsController_ajouterVariante",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreerVarianteDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Ajoute une variante à un produit",
+        "tags": [
+          "produits"
+        ]
+      }
+    },
+    "/api/categories": {
+      "get": {
+        "operationId": "CategoriesController_lister",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "categories"
+        ]
+      }
+    },
+    "/api/vendeurs": {
+      "get": {
+        "operationId": "VendeursController_trouverTous",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "vendeurs"
+        ]
+      },
+      "post": {
+        "operationId": "VendeursController_creer",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreerVendeurDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "vendeurs"
+        ]
+      }
+    },
+    "/api/vendeurs/{id}": {
+      "get": {
+        "operationId": "VendeursController_trouverUn",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "vendeurs"
+        ]
+      },
+      "patch": {
+        "operationId": "VendeursController_renommer",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreerVendeurDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "vendeurs"
+        ]
+      },
+      "delete": {
+        "operationId": "VendeursController_supprimer",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "vendeurs"
+        ]
+      }
+    },
+    "/api/vendeurs/{id}/produits": {
+      "post": {
+        "operationId": "VendeursController_ajouterProduit",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreerProduitDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "vendeurs"
+        ]
+      }
+    },
+    "/api/commandes": {
+      "post": {
+        "operationId": "CommandesController_creer",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreerCommandeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "commandes"
+        ]
+      }
+    },
+    "/api/commandes/{id}": {
+      "get": {
+        "operationId": "CommandesController_trouverUne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "commandes"
+        ]
+      }
+    },
+    "/api/commandes/{id}/expedier": {
+      "post": {
+        "operationId": "CommandesController_expedier",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "commandes"
+        ]
+      }
+    },
+    "/api/vendeurs/{vendeurId}/commandes": {
+      "get": {
+        "operationId": "CommandesDuVendeurController_lister",
+        "parameters": [
+          {
+            "name": "vendeurId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "commandes"
+        ]
+      }
+    },
+    "/api/prix/total": {
+      "post": {
+        "operationId": "PrixController_total",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalculerTotalDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "prix"
+        ]
+      }
+    },
+    "/api/classement-vendeurs": {
+      "get": {
+        "operationId": "ClassementVendeursController_classement",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Numéro de la page, à partir de 1",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limite",
+            "required": false,
+            "in": "query",
+            "description": "Nombre d'éléments par page",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "required": [
+                    "donnees",
+                    "meta"
+                  ],
+                  "properties": {
+                    "donnees": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/LigneClassementVendeurDto"
+                      }
+                    },
+                    "meta": {
+                      "$ref": "#/components/schemas/MetaPage"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requête invalide (paramètre ou corps refusé)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Jeton manquant, invalide ou expiré",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErreurDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Classement des vendeurs par chiffre d'affaires, puis par nombre de commandes",
+        "tags": [
+          "classement"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "API Marketplace",
+    "description": "Catalogue de produits, vendeurs, commandes et comptes de la marketplace.",
+    "version": "2.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "InscriptionDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Adresse e-mail (unique)",
+            "example": "alice@exemple.fr"
+          },
+          "motDePasse": {
+            "type": "string",
+            "description": "Mot de passe, 8 caractères au moins",
+            "minLength": 8,
+            "example": "MotDePasse!42"
+          }
+        },
+        "required": [
+          "email",
+          "motDePasse"
+        ]
+      },
+      "ConnexionDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "Adresse e-mail du compte",
+            "example": "alice@exemple.fr"
+          },
+          "motDePasse": {
+            "type": "string",
+            "description": "Mot de passe du compte",
+            "example": "MotDePasse!42"
+          }
+        },
+        "required": [
+          "email",
+          "motDePasse"
+        ]
+      },
+      "RafraichirDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "description": "Le refresh token reçu à la connexion"
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "ErreurDeChampDto": {
+        "type": "object",
+        "properties": {
+          "champ": {
+            "type": "string",
+            "example": "limite"
+          },
+          "erreurs": {
+            "example": [
+              "limite must not be greater than 100"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "champ",
+          "erreurs"
+        ]
+      },
+      "ErreurDto": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number",
+            "example": 404
+          },
+          "message": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            ],
+            "example": "Produit 9 introuvable"
+          },
+          "chemin": {
+            "type": "string",
+            "example": "/api/produits/9"
+          },
+          "horodatage": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "requeteId": {
+            "type": "string",
+            "description": "Identifiant à communiquer pour retrouver l'erreur dans les journaux"
+          },
+          "champs": {
+            "description": "Présent pour les erreurs de validation : une entrée par champ",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ErreurDeChampDto"
+            }
+          }
+        },
+        "required": [
+          "statusCode",
+          "message",
+          "chemin",
+          "horodatage"
+        ]
+      },
+      "ProduitReponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "description": "Identifiant du produit",
+            "example": 12
+          },
+          "nom": {
+            "type": "string",
+            "description": "Nom affiché du produit",
+            "example": "Lampe de bureau"
+          },
+          "prix": {
+            "type": "string",
+            "description": "Prix unitaire en euros, deux décimales (texte, pour ne rien perdre en précision)",
+            "example": "30.00"
+          },
+          "categorie": {
+            "type": "string",
+            "description": "Catégorie du produit",
+            "enum": [
+              "papeterie",
+              "informatique",
+              "mobilier"
+            ],
+            "example": "mobilier"
+          },
+          "actif": {
+            "type": "boolean",
+            "description": "Faux si le produit est retiré de la vente",
+            "example": true
+          },
+          "prixAchat": {
+            "type": "string",
+            "description": "Prix d'achat : visible seulement du vendeur propriétaire et d'un admin (8.11)",
+            "example": "18.00",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "nom",
+          "prix",
+          "categorie",
+          "actif"
+        ]
+      },
+      "MetaPage": {
+        "type": "object",
+        "properties": {
+          "page": {
+            "type": "number",
+            "example": 2
+          },
+          "limite": {
+            "type": "number",
+            "example": 20
+          },
+          "total": {
+            "type": "number",
+            "example": 57
+          },
+          "totalPages": {
+            "type": "number",
+            "example": 3
+          }
+        },
+        "required": [
+          "page",
+          "limite",
+          "total",
+          "totalPages"
+        ]
+      },
+      "CreerProduitDto": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string",
+            "description": "Nom du produit",
+            "example": "Lampe de bureau"
+          },
+          "prix": {
+            "type": "number",
+            "description": "Prix unitaire en euros",
+            "minimum": 0,
+            "example": 30
+          },
+          "categorie": {
+            "type": "string",
+            "enum": [
+              "papeterie",
+              "informatique",
+              "mobilier"
+            ],
+            "example": "mobilier"
+          },
+          "prixAchat": {
+            "type": "number",
+            "description": "Prix d'achat en euros (visible du propriétaire et d'un admin)",
+            "minimum": 0,
+            "example": 18
+          }
+        },
+        "required": [
+          "nom",
+          "prix",
+          "categorie"
+        ]
+      },
+      "RenommerProduitDto": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string",
+            "description": "Nouveau nom du produit",
+            "example": "Lampe d'architecte"
+          }
+        },
+        "required": [
+          "nom"
+        ]
+      },
+      "CreerVarianteDto": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string",
+            "description": "Nom de la variante",
+            "example": "Rouge"
+          },
+          "stock": {
+            "type": "number",
+            "description": "Stock disponible",
+            "minimum": 0,
+            "default": 0
+          }
+        },
+        "required": [
+          "nom"
+        ]
+      },
+      "CreerVendeurDto": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "type": "string",
+            "description": "Nom de la boutique",
+            "example": "Atelier du Bois"
+          }
+        },
+        "required": [
+          "nom"
+        ]
+      },
+      "CreerCommandeDto": {
+        "type": "object",
+        "properties": {
+          "lignes": {
+            "description": "Les lignes de la commande",
+            "example": [
+              {
+                "varianteId": 1,
+                "quantite": 2
+              }
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "lignes"
+        ]
+      },
+      "CalculerTotalDto": {
+        "type": "object",
+        "properties": {
+          "prixUnitaire": {
+            "type": "number",
+            "description": "Prix unitaire en euros",
+            "minimum": 0,
+            "example": 0.7
+          },
+          "quantite": {
+            "type": "number",
+            "description": "Nombre d'unités",
+            "minimum": 1,
+            "example": 12
+          }
+        },
+        "required": [
+          "prixUnitaire",
+          "quantite"
+        ]
+      },
+      "LigneClassementVendeurDto": {
+        "type": "object",
+        "properties": {
+          "rang": {
+            "type": "number",
+            "description": "Position dans le classement, à partir de 1",
+            "example": 1
+          },
+          "vendeurId": {
+            "type": "number",
+            "description": "Identifiant du vendeur",
+            "example": 3
+          },
+          "nom": {
+            "type": "string",
+            "description": "Nom du vendeur",
+            "example": "Atelier du Bois"
+          },
+          "commandes": {
+            "type": "number",
+            "description": "Nombre de commandes contenant au moins un produit du vendeur",
+            "example": 12
+          },
+          "chiffreAffaires": {
+            "type": "number",
+            "description": "Chiffre d'affaires total, en euros (quantité × prix des lignes du vendeur)",
+            "example": 1234.5
+          }
+        },
+        "required": [
+          "rang",
+          "vendeurId",
+          "nom",
+          "commandes",
+          "chiffreAffaires"
+        ]
+      }
+    }
+  }
+}

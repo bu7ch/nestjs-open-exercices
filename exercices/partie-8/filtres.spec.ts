@@ -12,9 +12,14 @@ import { cartographier, compteConnecte, creerBoutique, creerCommande, creerProdu
 const CLES = ['chemin', 'horodatage', 'message', 'requeteId', 'statusCode'];
 const INDICE_FILTRE = 'Écris `@Catch() export class ToutesExceptionsFilter implements ExceptionFilter` (exercice 8.14).';
 
-/** Vérifie qu'une réponse d'erreur a le format unique du 8.14 ; renvoie un message d'erreur, ou null. */
+/**
+ * Vérifie qu'une réponse d'erreur a le format unique du 8.14 ; renvoie un message d'erreur, ou null.
+ * Une validation ratée (400) peut porter en plus le détail par champ de l'exercice 9.13 (`champs`).
+ */
 function formatUnique(r: { status: number; body: Record<string, unknown>; headers: Record<string, unknown> }, chemin: string): string | null {
-  const cles = Object.keys(r.body ?? {}).sort();
+  const cles = Object.keys(r.body ?? {})
+    .filter((c) => !(c === 'champs' && r.status === 400 && Array.isArray(r.body.champs)))
+    .sort();
   if (JSON.stringify(cles) !== JSON.stringify(CLES)) return `clés ${JSON.stringify(cles)} au lieu de ${JSON.stringify(CLES)} (corps : ${JSON.stringify(r.body)})`;
   if (r.body.statusCode !== r.status) return `statusCode ${String(r.body.statusCode)} alors que le statut HTTP est ${r.status}`;
   if (r.body.chemin !== chemin) return `chemin ${JSON.stringify(r.body.chemin)} au lieu de ${JSON.stringify(chemin)} (requete.originalUrl)`;
