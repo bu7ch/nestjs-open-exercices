@@ -1,0 +1,30 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  # Ton travail : les tests des exercices sur ton code (dans src/).
+  # Il est normal qu'ils échouent tant que tu n'as pas fini les exercices.
+  exercices:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  # Garde-fou du cours : chaque solution du dossier solutions/ doit passer les tests de sa partie.
+  solutions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run verifier:solutions
