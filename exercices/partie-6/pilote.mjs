@@ -31,7 +31,9 @@ try {
     // Tes tests, sans mutation puis avec chacune des mutations demandées.
     const vitest = await createVitest('test', { config: demande.config, watch: false, reporters: ['dot'] });
     await vitest.standalone();
-    const specs = await vitest.globTestSpecifications();
+    const toutes = await vitest.globTestSpecifications();
+    // `fichiers` : seulement ces fichiers de test (chemins depuis la racine du projet).
+    const specs = demande.fichiers ? toutes.filter((s) => demande.fichiers.includes(relative(racine, s.moduleId))) : toutes;
     sortie.executions = [];
     for (const mutation of demande.mutations) {
       writeFileSync(demande.controle, mutation);

@@ -124,8 +124,11 @@ export type Genre = 'unitaires' | 'e2e';
 
 export interface Copie {
   dossier: string;
-  /** Tes tests (unitaires : src/**\/*.spec.ts ; e2e : test/**\/*.e2e-spec.ts), sans puis avec chaque mutation. */
-  executer(genre: Genre, mutations: string[]): Promise<Execution[]>;
+  /**
+   * Tes tests (unitaires : src/**\/*.spec.ts ; e2e : test/**\/*.e2e-spec.ts), sans puis avec chaque mutation.
+   * `fichiers` (chemins depuis la racine du projet) : n'en lancer que certains.
+   */
+  executer(genre: Genre, mutations: string[], fichiers?: string[]): Promise<Execution[]>;
   /** Ta configuration de Vitest (vitest.config.unit.ts ou vitest.config.e2e.ts), résolue par Vitest. */
   config(fichier: string): Promise<ConfigVitest | null>;
   /** `npm run test:cov` (ta configuration, avec la couverture) : le résumé par fichier. */
@@ -155,6 +158,16 @@ export interface Cibles {
   produits?: Trouve | null;
 }
 
+/** Pour réutiliser ce harnais dans une autre partie (la partie 8 juge aussi tes tests). */
+export interface OptionsCopie {
+  /** Le fichier de préparation qui introduit les mutations (par défaut : celui de la partie 6). */
+  mutations?: string;
+  /** Ajouté au plan que lit ce fichier (les cibles de ses mutations). */
+  plan?: Record<string, unknown>;
+  /** Des variables d'environnement fournies à tes tests (en plus des DB_* imposées). */
+  env?: Record<string, string>;
+}
+
 // Les fichiers de ton projet que tes tests peuvent lire.
 const A_COPIER = ['src', 'test', 'package.json', 'tsconfig.json', '.env.test', 'vitest.config.unit.ts', 'vitest.config.e2e.ts'];
 
@@ -162,7 +175,7 @@ const A_COPIER = ['src', 'test', 'package.json', 'tsconfig.json', '.env.test', '
  * Copie ton projet dans un dossier temporaire (ton dépôt n'est jamais touché), avec les outils de la
  * partie 6 : la préparation des mutations et le pilote qui lance Vitest.
  */
-export function preparerCopie(cibles: Cibles = {}): Copie {
+export function preparerCopie(cibles: Cibles = {}, options: OptionsCopie = {}): Copie {
   const dossier = realpathSync(mkdtempSync(join(tmpdir(), 'nestjs-open-partie6-')));
   for (const element of A_COPIER) {
     if (existsSync(join(racine, element))) cpSync(join(racine, element), join(dossier, element), { recursive: true });
@@ -170,7 +183,7 @@ export function preparerCopie(cibles: Cibles = {}): Copie {
   symlinkSync(join(racine, 'node_modules'), join(dossier, 'node_modules'));
   const outils = join(dossier, '.partie6');
   mkdirSync(outils);
-  cpSync(join(racine, 'exercices/partie-6/mutations.ts'), join(outils, 'mutations.ts'));
+  cpSync(join(racine, options.mutations ?? 'exercices/partie-6/mutations.ts'), join(outils, 'mutations.ts'));
   cpSync(join(racine, 'exercices/partie-6/pilote.mjs'), join(outils, 'pilote.mjs'));
 
   const controle = join(outils, 'mutation.txt');
@@ -179,6 +192,7 @@ export function preparerCopie(cibles: Cibles = {}): Copie {
   const absolu = (fichier: string) => join(dossier, fichier);
   const configurerApp = existsSync(join(dossier, 'src/configurer-app.ts')) ? { fichier: absolu('src/configurer-app.ts'), export: 'configurerApp' } : undefined;
   const plan = {
+    ...options.plan,
     controle,
     journal,
     cibles: {
@@ -226,6 +240,7 @@ export default defineConfig({
     const env: NodeJS.ProcessEnv = { ...process.env, P6_PLAN: join(outils, 'plan.json') };
     for (const cle of Object.keys(env)) if (/^VITEST|^TEST$/.test(cle)) delete env[cle];
     for (const cle of ['NOMBRE_MAX_PRODUITS', 'NOMBRE_MAX_JOUEURS', 'PORT']) delete env[cle];
+    Object.assign(env, options.env);
     // Comme la commande `vitest` : NODE_ENV=test (c'est ce qui fait lire .env.test à ton application).
     env.NODE_ENV = 'test';
     // Un test unitaire n'a pas besoin de la base : pendant les tiens, elle est injoignable.
@@ -248,8 +263,8 @@ export default defineConfig({
 
   return {
     dossier,
-    async executer(genre, mutations) {
-      const { executions } = await piloter<{ executions: Execution[] }>({ mode: 'executer', genre, config: join(outils, `vitest.${genre}.config.mjs`), mutations });
+    async executer(genre, mutations, fichiers) {
+      const { executions } = await piloter<{ executions: Execution[] }>({ mode: 'executer', genre, config: join(outils, `vitest.${genre}.config.mjs`), mutations, fichiers });
       return executions;
     },
     async config(fichier) {

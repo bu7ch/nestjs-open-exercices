@@ -27,6 +27,7 @@
     "test:partie-5": "vitest run exercices/partie-5",
     "test:partie-6": "vitest run exercices/partie-6",
     "test:partie-7": "vitest run exercices/partie-7",
+    "test:partie-8": "vitest run exercices/partie-8",
     "verifier:solutions": "node scripts/verifier-solutions.mjs"
   },
   "dependencies": {
