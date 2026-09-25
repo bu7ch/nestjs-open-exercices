@@ -23,7 +23,10 @@ for (const partie of parties) {
   for (const element of ['package.json', 'tsconfig.json', 'tsconfig.build.json', 'nest-cli.json', 'vitest.config.ts', 'exercices']) {
     if (existsSync(join(racine, element))) cpSync(join(racine, element), join(copie, element), { recursive: true });
   }
-  cpSync(join(racine, 'solutions', partie, 'src'), join(copie, 'src'), { recursive: true });
+  // src/ (et, s'il y en a, les projets bonus à part comme bonus-nba/).
+  for (const dossier of readdirSync(join(racine, 'solutions', partie))) {
+    cpSync(join(racine, 'solutions', partie, dossier), join(copie, dossier), { recursive: true });
+  }
   symlinkSync(join(racine, 'node_modules'), join(copie, 'node_modules'));
 
   console.log(`\n=== ${partie} ===`);
