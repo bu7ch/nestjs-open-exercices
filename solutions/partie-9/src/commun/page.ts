@@ -24,10 +24,17 @@ export const ApiPage = <M extends Type<unknown>>(modele: M) =>
     ApiExtraModels(MetaPage, modele),
     ApiOkResponse({
       schema: {
-        required: ['donnees', 'meta'],
+        // L'interceptor global du 8.13 entoure chaque réponse réussie de `{ data }`.
+        required: ['data'],
         properties: {
-          donnees: { type: 'array', items: { $ref: getSchemaPath(modele) } },
-          meta: { $ref: getSchemaPath(MetaPage) },
+          data: {
+            type: 'object',
+            required: ['donnees', 'meta'],
+            properties: {
+              donnees: { type: 'array', items: { $ref: getSchemaPath(modele) } },
+              meta: { $ref: getSchemaPath(MetaPage) },
+            },
+          },
         },
       },
     }),

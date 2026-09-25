@@ -396,18 +396,26 @@
               "application/json": {
                 "schema": {
                   "required": [
-                    "donnees",
-                    "meta"
+                    "data"
                   ],
                   "properties": {
-                    "donnees": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/ProduitReponseDto"
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "donnees",
+                        "meta"
+                      ],
+                      "properties": {
+                        "donnees": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ProduitReponseDto"
+                          }
+                        },
+                        "meta": {
+                          "$ref": "#/components/schemas/MetaPage"
+                        }
                       }
-                    },
-                    "meta": {
-                      "$ref": "#/components/schemas/MetaPage"
                     }
                   }
                 }
@@ -1168,18 +1176,26 @@
               "application/json": {
                 "schema": {
                   "required": [
-                    "donnees",
-                    "meta"
+                    "data"
                   ],
                   "properties": {
-                    "donnees": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/LigneClassementVendeurDto"
+                    "data": {
+                      "type": "object",
+                      "required": [
+                        "donnees",
+                        "meta"
+                      ],
+                      "properties": {
+                        "donnees": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/LigneClassementVendeurDto"
+                          }
+                        },
+                        "meta": {
+                          "$ref": "#/components/schemas/MetaPage"
+                        }
                       }
-                    },
-                    "meta": {
-                      "$ref": "#/components/schemas/MetaPage"
                     }
                   }
                 }
