@@ -71,6 +71,8 @@ export interface OptionsLancement {
   env?: Record<string, string | undefined>;
   /** Contenu d'un `.env` écrit dans le dossier temporaire (par défaut : aucun `.env`). */
   fichierEnv?: string;
+  /** D'autres fichiers à écrire dans le dossier temporaire (par exemple `.env.test`, partie 6). */
+  fichiers?: Record<string, string>;
   /** `auto` : `configurer-app.ts` s'il existe (partie 6), sinon `main.ts`. `main` : toujours `main.ts`. */
   via?: 'auto' | 'main';
   /** Le dossier du projet : `src` (la marketplace) ou `bonus-nba/src` (le projet bonus). */
@@ -106,6 +108,7 @@ export async function lancer(options: OptionsLancement = {}): Promise<AppLancee>
   // ConfigModule lit `.env` dans le dossier courant : on l'y remplace par celui du test.
   const dossier = mkdtempSync(join(tmpdir(), 'nestjs-open-test-'));
   if (options.fichierEnv !== undefined) writeFileSync(join(dossier, '.env'), options.fichierEnv);
+  for (const [nom, contenu] of Object.entries(options.fichiers ?? {})) writeFileSync(join(dossier, nom), contenu);
   const dossierInitial = process.cwd();
   process.chdir(dossier);
   // Chaque lancement repart d'un code fraîchement chargé : données en mémoire de départ, .env relu.
